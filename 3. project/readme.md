@@ -134,5 +134,39 @@ If you use this baseline or ideas from it, please cite this repository.
 }
 ```
 
-```
-```
+---
+
+## 7. Results
+
+### 7.1 Test Metrics (same held-out split, `shuffle=False`)
+| Model Variant                                 | Test Loss | Test Accuracy |
+|----------------------------------------------|-----------|---------------|
+| CNN + L2 (150 epochs, no EarlyStopping)      | **0.4161** | **0.9589**    |
+| CNN + L2 + EarlyStopping (patience=5)        | 0.7616    | 0.9177        |
+
+<table>
+  <tr>
+    <th>Baseline – Metrics</th>
+    <th>EarlyStopping – Metrics</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="assets/results/baseline_metrics.png" alt="Baseline Metrics" width="360"></td>
+    <td align="center"><img src="assets/results/earlystopping_metrics.png" alt="EarlyStopping Metrics" width="360"></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <th>Baseline – Training Curves</th>
+    <th>EarlyStopping – Training Curves</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="assets/results/baseline_curves.png" alt="Baseline Curves" width="520"></td>
+    <td align="center"><img src="assets/results/earlystopping_curves.png" alt="EarlyStopping Curves" width="520"></td>
+  </tr>
+</table>
+
+**Interpretation.**
+- Baseline: highest final accuracy; slight overfitting signs late in training.  
+- EarlyStopping: earlier stop, smoother curves; slightly lower final accuracy depending on settings.  
+- All evaluations use `shuffle=False` for reproducibility.
