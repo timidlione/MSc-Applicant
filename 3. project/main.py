@@ -43,7 +43,7 @@ Notes
 def create_model(num_classes):
 
     # L2 regularization applied to all conv/dense layers
-    l2_regularizer = l2(0.001)
+    l2_regularizer = l2(0.0005)
 
     model = Sequential([
         Input(shape=(224, 224, 3)),                          # Input: RGB image 224x224
