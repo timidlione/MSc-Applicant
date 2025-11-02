@@ -3,7 +3,7 @@
 This repository contains **my individual contribution** to a team competition project.  
 I was responsible for **model training, evaluation metric design, and iterative performance improvement**.  
 Accordingly, this repo includes **only my part (training script)**; other team assets (domain EDA, deployment code, etc.) are **not included**.
-
+ 
 The script predicts **Age** (continuous target) from crab biometric features using **CatBoostRegressor** with **Optuna** hyperparameter optimization.  
 It loads CSV files, runs a reproducible train/validation split, searches hyperparameters to minimize **MAE**, trains the final model with early stopping, evaluates on the validation set, and creates a **submission CSV** for the test set.
 
