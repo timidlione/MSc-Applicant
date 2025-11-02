@@ -1,19 +1,19 @@
 # Generative AI Web Service for Logo Creation & Branding (FLUX + LoRA)
 
-FastAPI-based web API that generates **logo images from text prompts** using **FLUX.1-dev + LoRA**.  
+FastAPI-based web API that generates **logo images from text prompts** using **FLUX.1-dev + LoRA**.
 Send a prompt to `/generate-logo` and receive **Base64-encoded PNG** images.
 
 > **Scope**
-> - This repo is **inference-only** (no training code or datasets).
-> - LoRA weights can be loaded from a **local file** or **Hugging Face**.
-> - Built and tested on **RunPod GPU instances (NVIDIA A100/H100, CUDA 12.1)** with **VS Code Remote-SSH**.
+>
+> * This repo is **inference-only** (no training code or datasets).
+> * LoRA weights can be loaded from a **local file** or **Hugging Face**.
+> * Built and tested on **RunPod GPU instances (NVIDIA A100/H100, CUDA 12.1)** with **VS Code Remote-SSH**.
 
 ---
 
 ## 1) Project Structure
 
 ```
-
 project/
 ├── app.py                        # FastAPI server (startup + /generate-logo)
 ├── model/
@@ -27,8 +27,7 @@ project/
 │      ├── logo1.png             # sample result (add later)
 │      └── logo2.png             # sample result (add later)
 └── README.md
-
-````
+```
 
 > Current code expects a **local LoRA file** at `downloaded_lora/pytorch_lora_weights.safetensors`.
 
@@ -36,25 +35,28 @@ project/
 
 ## 2) Environment & Requirements
 
-- **Platform:** RunPod (Linux) on **NVIDIA A100/H100**  
-- **CUDA / PyTorch:** CUDA 12.1 wheels  
-- **Editor:** **VS Code Remote-SSH**  
-- **Core libs:** FastAPI, Uvicorn, Diffusers, Transformers, Accelerate, PyTorch, Safetensors
+* **Platform:** RunPod (Linux) on **NVIDIA A100/H100**
+* **CUDA / PyTorch:** CUDA 12.1 wheels
+* **Editor:** **VS Code Remote-SSH**
+* **Core libs:** FastAPI, Uvicorn, Diffusers, Transformers, Accelerate, PyTorch, Safetensors
 
 ### Pinned versions used in this project
 
-- PyTorch **2.5.1+cu121** / torchvision **0.20.1+cu121** / torchaudio **2.5.1**
-- diffusers **0.35.1**
-- transformers **4.45.2**
-- accelerate **1.1.1**
-- safetensors **0.4.5**
-- huggingface_hub (latest) — only needed if you download weights from HF at runtime
-- sentencepiece (needed for some tokenizers; safe to include)
-- Pillow, numpy
+* PyTorch **2.5.1+cu121** / torchvision **0.20.1+cu121** / torchaudio **2.5.1**
+* diffusers **0.35.1**
+* transformers **4.45.2**
+* accelerate **1.1.1**
+* safetensors **0.4.5**
+* huggingface_hub (latest) — only needed if you download weights from HF at runtime
+* sentencepiece (needed for some tokenizers; safe to include)
+* Pillow, numpy
 
 ### Install (exact commands)
 
 ```bash
+# 0) API server
+pip install "uvicorn[standard]" fastapi python-multipart
+
 # 1) PyTorch CUDA 12.1 wheels (A100/H100)
 pip install torch==2.5.1+cu121 torchvision==0.20.1+cu121 torchaudio==2.5.1 \
   --index-url https://download.pytorch.org/whl/cu121
@@ -69,11 +71,7 @@ pip install pillow "numpy>=1.24,<3" sentencepiece
 pip install huggingface_hub
 # If you need private access:
 # huggingface-cli login    # <<< Do NOT commit tokens; use environment variables or CI secrets.
-````
-
-> **Device note (CUDA)**
-> `inference.py` uses `torch_dtype=torch.bfloat16` and `.to("cuda")` — optimal for **A100/H100**.
-> If your CUDA build complains about dtype, change to `float16`.
+```
 
 ---
 
@@ -119,6 +117,9 @@ pip install huggingface_hub
 }
 ```
 
+> **Note:** The API returns **raw Base64 strings** (no `data:image/png;base64,` prefix).
+> If you need a data URI for `<img src>`, prepend that prefix on the client side.
+
 **cURL**
 
 ```bash
@@ -151,20 +152,15 @@ curl -X POST http://localhost:8000/generate-logo \
 
 ## 6) LoRA Weights
 
-* **Local (default):** `downloaded_lora/pytorch_lora_weights.safetensors`
-  Use **Git LFS** or **GitHub Releases** for large files.
+All LoRA weights are hosted on Hugging Face under our organization:
 
-* **Hugging Face (optional):** pin a **revision (commit hash)** for reproducibility.
+👉 [https://huggingface.co/logologolab](https://huggingface.co/logologolab)
 
-  ```python
-  from huggingface_hub import hf_hub_download
-  path = hf_hub_download(
-    repo_id="team401/logogen-lora",
-    filename="pytorch_lora_weights.safetensors",
-    revision="xxxxxxxx"
-  )
-  apply_lora(flux_model, path)
-  ```
+> This repo does **not** store `.safetensors` files.
+> Download the desired LoRA from the link above and either:
+>
+> * **Use at runtime** with `huggingface_hub.hf_hub_download`, or
+> * **Pre-download** and point `inference.py` to the local file path.
 
 ---
 
@@ -179,7 +175,7 @@ curl -X POST http://localhost:8000/generate-logo \
   * Text-only → `text-only design`
   * Image-only → `icon only`
 
-* **Defaults**: Steps 28–64, Guidance 3–6, Size 768–1024, Background `white background`,
+* **Defaults**: Steps **100**, Guidance **10**, Size **1024**, Background `white background`,
   Negative: `photo, 3d, text, watermark, low quality, noisy`
 
 * **Style snippets**
@@ -206,6 +202,9 @@ Below are two sample outputs generated by this API + LoRA (examples; not affilia
   &nbsp;&nbsp;&nbsp;
   <img src="assets/samples/logo2.png" alt="Sample Logo 2" width="360" />
 </p>
+<p align="center">
+  <sub><strong>Logo 1</strong>: futuristic style sample &nbsp;|&nbsp; <strong>Logo 2</strong>: tattoo style sample</sub>
+</p>
 
 ---
 
@@ -218,12 +217,41 @@ Below are two sample outputs generated by this API + LoRA (examples; not affilia
 
 ---
 
+좋아, **Code license** 문구만 확실히 정리해서 교체본 드릴게. 아래 블록을 README의 **## 10) License & Credits** 섹션에 그대로 붙여 넣으면 돼.
+
+---
+
 ## 10) License & Credits
 
 * **Base model**: `black-forest-labs/FLUX.1-dev` (respect its license/usage terms).
 * **LoRA**: trained by our team (open-source distribution allowed; dataset not redistributed).
-* **Code license**: Add a `LICENSE` file (e.g., MIT).
+* **Code license**: **MIT License** — add a `LICENSE` file and include the SPDX header in source files.
 
+**LoRA Weights:** hosted at [https://huggingface.co/logologolab](https://huggingface.co/logologolab) (see each model card for license/usage terms).
 **Trademark/Copyright:** Do not generate deceptive or infringing marks. Use responsibly.
 
-````
+**LICENSE (MIT) template**
+
+```
+MIT License
+
+Copyright (c) 2025 Sangmin Woo and contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
