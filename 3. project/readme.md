@@ -9,7 +9,7 @@ It loads images from directory structures (train/val/test), trains across combin
 1) the model graph (`.png`, once),  
 2) training curves (`.png`),  
 3) the trained model (`.keras`).  
-
+ 
 **Reproducibility:** validation/test generators use `shuffle=False`. Filenames include hyperparameters and final test accuracy (`T_Acc`).
 
 ---
