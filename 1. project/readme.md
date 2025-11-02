@@ -2,7 +2,7 @@
 
 FastAPI-based web API that generates **logo images from text prompts** using **FLUX.1-dev + LoRA**.
 Send a prompt to `/generate-logo` and receive **Base64-encoded PNG** images.
-
+ 
 > **Scope**
 >
 > * This repo is **inference-only** (no training code or datasets).
